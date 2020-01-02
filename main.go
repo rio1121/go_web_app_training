@@ -16,6 +16,7 @@ type Page struct {
 
 // StartWebApp Webサーバーの起動
 func StartWebApp() {
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	// nil = Default Handler
 	log.Fatal(http.ListenAndServe(":5555", nil))
 }
@@ -26,8 +27,11 @@ func main() {
 
 	fmt.Println("\n#####################################################################")
 	fmt.Println("# Welcome to simple web application for golang by Ryunosuke Yamada. #")
+	fmt.Println("# Please access to 'localhost:5555/static/'.                        #")
+	fmt.Println("#                                                                   #")
+	fmt.Println("# Press any key to exit.                                            #")
 	fmt.Println("#####################################################################")
-	fmt.Print("\nPress any key to exit.")
+
 	scanner := bufio.NewScanner(os.Stdin)
 	// 何かキーを押すとサーバーを終了.
 	scanner.Scan()
