@@ -21,6 +21,7 @@ func StartWebApp() {
 }
 
 func main() {
+	// WebサーバーをGoroutineで起動
 	go StartWebApp()
 
 	fmt.Println("\n#####################################################################")
@@ -28,7 +29,6 @@ func main() {
 	fmt.Println("#####################################################################")
 	fmt.Print("\nPress any key to exit.")
 	scanner := bufio.NewScanner(os.Stdin)
+	// 何かキーを押すとサーバーを終了.
 	scanner.Scan()
-
-	return
 }
