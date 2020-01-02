@@ -18,7 +18,7 @@ type Page struct {
 func StartWebApp() {
 	// /static/に対してハンドラーを登録
 	// http.Dirの引数でディレクトリを指定.
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static2"))))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	// nil = Default Handler
 	log.Fatal(http.ListenAndServe(":5555", nil))
 }
