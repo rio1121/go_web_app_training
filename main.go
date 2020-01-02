@@ -14,11 +14,21 @@ type Page struct {
 	Body  []byte
 }
 
+// submitHandler - 会員登録処理ハンドラ
+func submitHandler(writer http.ResponseWriter, req *http.Request) {
+	userName := req.FormValue("user_name")
+	userIntroduction := req.FormValue("user_introduction")
+	log.Println("Submit OK. ユーザー名:", userName, ", 自己紹介文:", userIntroduction)
+	http.Redirect(writer, req, "/static/", http.StatusFound)
+}
+
 // StartWebApp Webサーバーの起動
 func StartWebApp() {
 	// /static/に対してハンドラーを登録
 	// http.Dirの引数でディレクトリを指定.
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	// /submit/に対してハンドラーを登録
+	http.HandleFunc("/submit/", submitHandler)
 	// nil = Default Handler
 	log.Fatal(http.ListenAndServe(":5555", nil))
 }
