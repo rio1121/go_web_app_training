@@ -11,10 +11,10 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// Page webページのタイトルと本文
-type Page struct {
-	Title string
-	Body  []byte
+// User ユーザー情報
+type User struct {
+	Name  string
+	Intro string
 }
 
 // DBConnection ..

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>登録ユーザーリスト</title>
+    </head>
+    <body>
+        <h1>登録ユーザー</h1>
+        <ul class="user-list">
+            {{range .}}
+                <li>{{.Name}} - {{.Intro}}</li>
+            {{end}}
+        </ul>
+    </body>
+</html>
