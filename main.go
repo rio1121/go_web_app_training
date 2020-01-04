@@ -44,17 +44,29 @@ func submitHandler(writer http.ResponseWriter, req *http.Request) {
 	http.Redirect(writer, req, "/static/", http.StatusFound)
 }
 
+// indexHandler - 会員一覧表示ハンドラ
+func indexHandler(writer http.ResponseWriter, req *http.Request) {
+	// データベースへのアクセス開始
+	DBConnection, _ := sql.Open("sqlite3", "./users.sql")
+
+	// Openを呼び出す場合は必ず実行する
+	defer DBConnection.Close()
+}
+
 // StartWebApp Webサーバーの起動
 func StartWebApp() {
 	// /static/に対してハンドラーを登録
 	// http.Dirの引数でディレクトリを指定.
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	// /submit/に対してハンドラーを登録
+	// 会員登録ハンドラ
 	http.HandleFunc("/submit/", submitHandler)
+	// 会員一覧ハンドラ
+	http.HandleFunc("/index/", indexHandler)
 	// nil = Default Handler
 	log.Fatal(http.ListenAndServe(":5555", nil))
 }
 
+// データベースがない場合は作成.
 func init() {
 	// データベースへのアクセス開始
 	DBConnection, _ := sql.Open("sqlite3", "./users.sql")
