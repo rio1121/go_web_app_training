@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"database/sql"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -44,6 +45,12 @@ func submitHandler(writer http.ResponseWriter, req *http.Request) {
 	http.Redirect(writer, req, "/static/", http.StatusFound)
 }
 
+// renderIndexTemplate - User構造体のスライスのデータをテンプレートファイルを用いて表示
+func renderIndexTemplate(writer http.ResponseWriter, u []User) {
+	t, _ := template.ParseFiles("index/index.html")
+	t.Execute(writer, u)
+}
+
 // indexHandler - 会員一覧表示ハンドラ
 func indexHandler(writer http.ResponseWriter, req *http.Request) {
 	// データベースへのアクセス開始
@@ -51,6 +58,26 @@ func indexHandler(writer http.ResponseWriter, req *http.Request) {
 
 	// Openを呼び出す場合は必ず実行する
 	defer DBConnection.Close()
+
+	// DBのデータを読み出す
+	cmd := "SELECT * from users"
+	// Queryで得られる結果は必ず使用後にクローズすること
+	rows, _ := DBConnection.Query(cmd)
+	defer rows.Close()
+	var users []User
+
+	// データのスキャン
+	for rows.Next() {
+		var u User
+		err := rows.Scan(&u.Name, &u.Intro)
+		if err != nil {
+			log.Println(err)
+		}
+		users = append(users, u)
+	}
+
+	// render関数の呼び出し
+	renderIndexTemplate(writer, users)
 }
 
 // StartWebApp Webサーバーの起動
