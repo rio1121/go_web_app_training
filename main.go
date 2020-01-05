@@ -43,6 +43,21 @@ func insertUser(name, intro string) {
 	}
 }
 
+// insertChat チャットをDBへ登録
+func insertChat(name, message string) {
+	// データベースへのアクセス開始
+	DBConnection, _ := sql.Open("sqlite3", "./chat.sql")
+
+	// Openを呼び出す場合は必ず実行する
+	defer DBConnection.Close()
+
+	cmd := `INSERT INTO chat (name, message) VALUES (?, ?)`
+	_, err := DBConnection.Exec(cmd, name, message)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
 // submitHandler - 会員登録処理ハンドラ
 func submitHandler(writer http.ResponseWriter, req *http.Request) {
 	userName := req.FormValue("user_name")
@@ -50,6 +65,15 @@ func submitHandler(writer http.ResponseWriter, req *http.Request) {
 	insertUser(userName, userIntroduction)
 	log.Println("Submit OK. ユーザー名:", userName, ", 自己紹介文:", userIntroduction)
 	http.Redirect(writer, req, "/static/", http.StatusFound)
+}
+
+// chatHandler - チャット処理ハンドラ
+func chatHandler(writer http.ResponseWriter, req *http.Request) {
+	name := req.FormValue("chat_name")
+	message := req.FormValue("chat_message")
+	insertChat(name, message)
+	log.Println("Chat OK. 名前:", name, ", メッセージ:", message)
+	http.Redirect(writer, req, "/chatroom/", http.StatusFound)
 }
 
 // renderIndexTemplate - User構造体のスライスのデータをテンプレートファイルを用いて表示
@@ -93,8 +117,8 @@ func indexHandler(writer http.ResponseWriter, req *http.Request) {
 	renderIndexTemplate(writer, users)
 }
 
-// chatHandker - チャットルームハンドラ
-func chatHandler(writer http.ResponseWriter, req *http.Request) {
+// chatroomHandker - チャットルームハンドラ
+func chatroomHandler(writer http.ResponseWriter, req *http.Request) {
 	// データベースへのアクセス開始
 	DBConnection, _ := sql.Open("sqlite3", "./chat.sql")
 
@@ -132,7 +156,9 @@ func StartWebApp() {
 	// 会員一覧ハンドラ
 	http.HandleFunc("/index/", indexHandler)
 	// チャットルームハンドラ
-	http.HandleFunc("/chatroom/", chatHandler)
+	http.HandleFunc("/chatroom/", chatroomHandler)
+	// チャットハンドラ
+	http.HandleFunc("/chat/", chatHandler)
 	// nil = Default Handler
 	log.Fatal(http.ListenAndServe(":5555", nil))
 }
@@ -163,8 +189,8 @@ func init() {
 	// テーブル作成コマンド
 	cmd = `CREATE TABLE IF NOT EXISTS chat(
 				name STRING,
-				message STRING,
-				created_at DATETIME)`
+				message TEXT,
+				created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')))`
 
 	// コマンドを実行しつつ、エラーハンドリング
 	_, err = DBConnection.Exec(cmd)
