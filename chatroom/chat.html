@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>チャットルーム</title>
+    </head>
+    <body>
+        <h1>チャットルーム</h1>
+        <ul class="message-list">
+            {{range .}}
+                <li>{{.Name}} - {{.Message}} [{{.CreatedAt}}]</li>
+            {{end}}
+        </ul>
+        <div class="chat-form">
+            <form action="/chat/" name="chat_data" method="post">
+                <label class="input_label">名前: <input type="text" name="chat_name"></label>
+                <label class="input_label">メッセージ: <input type="text" name="chat_message"></label>
+                <button type="submit" class="chat-button">送信</button>
+            </form>
+        </div>
+        <div class="link">
+            <a href="/static">戻る</a>
+        </div>
+    </body>
+</html>

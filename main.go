@@ -18,6 +18,13 @@ type User struct {
 	Intro string
 }
 
+// Chat チャット情報
+type Chat struct {
+	Name      string
+	Message   string
+	CreatedAt string
+}
+
 // DBConnection ..
 var DBConnection *sql.DB
 
@@ -51,6 +58,12 @@ func renderIndexTemplate(writer http.ResponseWriter, u []User) {
 	t.Execute(writer, u)
 }
 
+// renderChatTemplate - Chat構造体のスライスのデータをテンプレートファイルを用いて表示
+func renderChatTemplate(writer http.ResponseWriter, c []Chat) {
+	t, _ := template.ParseFiles("chatroom/chat.html")
+	t.Execute(writer, c)
+}
+
 // indexHandler - 会員一覧表示ハンドラ
 func indexHandler(writer http.ResponseWriter, req *http.Request) {
 	// データベースへのアクセス開始
@@ -80,6 +93,35 @@ func indexHandler(writer http.ResponseWriter, req *http.Request) {
 	renderIndexTemplate(writer, users)
 }
 
+// chatHandker - チャットルームハンドラ
+func chatHandler(writer http.ResponseWriter, req *http.Request) {
+	// データベースへのアクセス開始
+	DBConnection, _ := sql.Open("sqlite3", "./chat.sql")
+
+	// Openを呼び出す場合は必ず実行する
+	defer DBConnection.Close()
+
+	// DBのデータを読み出す
+	cmd := "SELECT * from chat"
+	// Queryで得られる結果は必ず使用後にクローズすること
+	rows, _ := DBConnection.Query(cmd)
+	defer rows.Close()
+	var chats []Chat
+
+	// データのスキャン
+	for rows.Next() {
+		var c Chat
+		err := rows.Scan(&c.Name, &c.Message, &c.CreatedAt)
+		if err != nil {
+			log.Println(err)
+		}
+		chats = append(chats, c)
+	}
+
+	// render関数の呼び出し
+	renderChatTemplate(writer, chats)
+}
+
 // StartWebApp Webサーバーの起動
 func StartWebApp() {
 	// /static/に対してハンドラーを登録
@@ -89,6 +131,8 @@ func StartWebApp() {
 	http.HandleFunc("/submit/", submitHandler)
 	// 会員一覧ハンドラ
 	http.HandleFunc("/index/", indexHandler)
+	// チャットルームハンドラ
+	http.HandleFunc("/chatroom/", chatHandler)
 	// nil = Default Handler
 	log.Fatal(http.ListenAndServe(":5555", nil))
 }
@@ -108,6 +152,22 @@ func init() {
 
 	// コマンドを実行しつつ、エラーハンドリング
 	_, err := DBConnection.Exec(cmd)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// チャットデータ
+	// データベースへのアクセス開始
+	DBConnection, _ = sql.Open("sqlite3", "./chat.sql")
+
+	// テーブル作成コマンド
+	cmd = `CREATE TABLE IF NOT EXISTS chat(
+				name STRING,
+				message STRING,
+				created_at DATETIME)`
+
+	// コマンドを実行しつつ、エラーハンドリング
+	_, err = DBConnection.Exec(cmd)
 	if err != nil {
 		log.Fatalln(err)
 	}
