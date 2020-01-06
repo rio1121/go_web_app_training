@@ -16,15 +16,3 @@ a:hover {
     color: mediumslateblue;
     border: 2px solid mediumslateblue;
 }
-
-.link {
-    margin: 24px 10px;
-}
-
-.welcome-message {
-    background-color: cornflowerblue;
-    border: 2px ridge rgb(54, 134, 255);
-    color: white;
-    border-radius: 10px;
-    padding: 0 10px;
-}

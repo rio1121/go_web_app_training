@@ -159,6 +159,8 @@ func StartWebApp() {
 	http.HandleFunc("/chatroom/", chatroomHandler)
 	// チャットハンドラ
 	http.HandleFunc("/chat/", chatHandler)
+	// リソースハンドラ - これがないとtemplate使用時にcssが適用されない.
+	http.Handle("/resources/", http.StripPrefix("/resources/", http.FileServer(http.Dir("resources/"))))
 	// nil = Default Handler
 	log.Fatal(http.ListenAndServe(":5555", nil))
 }
